@@ -2,7 +2,7 @@
   <el-config-provider :locale="zhCn">
     <div class="app-container">
       <el-container>
-        <el-header class="app-header">
+        <el-header class="app-header" :height="'auto'">
           <div class="header-content">
             <h1 @click="router.push('/')">GPU维修工单系统</h1>
             <el-menu
@@ -10,6 +10,7 @@
               mode="horizontal"
               :router="true"
               class="header-menu"
+              :ellipsis="false"
             >
               <el-menu-item index="/">
                 <el-icon><HomeFilled /></el-icon>
@@ -62,6 +63,7 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   padding: 0 20px;
+  height: auto !important;
 }
 
 .header-content {
@@ -69,7 +71,7 @@ body {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  height: 60px;
+  min-height: 60px;
 }
 
 .header-content h1 {
@@ -102,5 +104,49 @@ body {
   margin: 0 auto;
   padding: 20px;
   width: 100%;
+}
+
+/* 移动端响应式 */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 10px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-content h1 {
+    font-size: 16px;
+    margin-right: 0;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .header-menu {
+    width: 100%;
+    background: transparent;
+    border: none;
+  }
+
+  .header-menu .el-menu-item {
+    padding: 0 8px;
+    font-size: 13px;
+    height: 40px;
+    line-height: 40px;
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom: none;
+  }
+
+  .header-menu .el-menu-item:hover,
+  .header-menu .el-menu-item.is-active {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+
+  .app-main {
+    padding: 10px;
+  }
 }
 </style>

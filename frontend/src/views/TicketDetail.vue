@@ -141,7 +141,7 @@
       </el-card>
 
       <!-- 编辑对话框 -->
-      <el-dialog v-model="editDialogVisible" title="编辑工单" width="600px">
+      <el-dialog v-model="editDialogVisible" title="编辑工单" :width="isMobile ? '95%' : '600px'">
         <el-form :model="editForm" label-width="100px">
           <el-form-item label="型号类别">
             <el-select v-model="editForm.model_type" style="width: 100%">
@@ -202,6 +202,7 @@ const { currentTicket: ticket, loading } = storeToRefs(store)
 
 const currentStatus = ref('')
 const editDialogVisible = ref(false)
+const isMobile = ref(window.innerWidth <= 768)
 const editForm = ref({
   model_type: '',
   serial_number: '',
@@ -209,6 +210,10 @@ const editForm = ref({
   fault_description: '',
   status: '',
   updated_at: ''
+})
+
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth <= 768
 })
 
 onMounted(async () => {
@@ -352,6 +357,8 @@ function formatFileSize(bytes) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .fault-desc {
@@ -372,7 +379,7 @@ function formatFileSize(bytes) {
 
 .image-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
 }
 
@@ -384,7 +391,7 @@ function formatFileSize(bytes) {
 
 .preview-image {
   width: 100%;
-  height: 200px;
+  height: 150px;
 }
 
 .image-info {
@@ -401,5 +408,35 @@ function formatFileSize(bytes) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 移动端响应式 */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .image-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .preview-image {
+    height: 120px;
+  }
+
+  :deep(.el-descriptions) {
+    font-size: 13px;
+  }
+
+  :deep(.el-descriptions__label) {
+    width: 80px !important;
+  }
 }
 </style>

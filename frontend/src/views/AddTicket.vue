@@ -16,8 +16,8 @@
         label-width="100px"
         label-position="top"
       >
-        <el-row :gutter="24">
-          <el-col :span="12">
+        <el-row :gutter="16">
+          <el-col :xs="24" :sm="12">
             <el-form-item label="型号类别" prop="model_type">
               <el-select v-model="form.model_type" placeholder="请选择型号" style="width: 100%">
                 <el-option label="H100" value="H100" />
@@ -30,15 +30,15 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :xs="24" :sm="12">
             <el-form-item label="序列号" prop="serial_number">
               <el-input v-model="form.serial_number" placeholder="请输入序列号" />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-row :gutter="24">
-          <el-col :span="12">
+        <el-row :gutter="16">
+          <el-col :xs="24" :sm="12">
             <el-form-item label="创建时间" prop="created_at">
               <el-date-picker
                 v-model="form.created_at"
@@ -50,7 +50,7 @@
               />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :xs="24" :sm="12">
             <el-form-item label="更新时间" prop="updated_at">
               <el-date-picker
                 v-model="form.updated_at"
@@ -238,5 +238,20 @@ function handleReset() {
 .form-card {
   border-radius: 12px;
   max-width: 800px;
+}
+
+/* 移动端响应式 */
+@media (max-width: 768px) {
+  .form-card {
+    max-width: 100%;
+  }
+
+  :deep(.el-form-item__label) {
+    font-size: 13px;
+  }
+
+  :deep(.el-date-editor) {
+    width: 100% !important;
+  }
 }
 </style>

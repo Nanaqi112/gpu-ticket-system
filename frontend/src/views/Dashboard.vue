@@ -2,8 +2,8 @@
   <div class="dashboard">
     <!-- 统计卡片 -->
     <div class="stats-container">
-      <el-row :gutter="20">
-        <el-col :span="8">
+      <el-row :gutter="16">
+        <el-col :xs="24" :sm="8">
           <el-card class="stat-card stat-total" shadow="hover">
             <div class="stat-content">
               <div class="stat-icon">
@@ -16,7 +16,7 @@
             </div>
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :xs="24" :sm="8">
           <el-card class="stat-card stat-completed" shadow="hover">
             <div class="stat-content">
               <div class="stat-icon">
@@ -29,7 +29,7 @@
             </div>
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :xs="24" :sm="8">
           <el-card class="stat-card stat-progress" shadow="hover">
             <div class="stat-content">
               <div class="stat-icon">
@@ -56,37 +56,39 @@
         </div>
       </template>
 
-      <el-table :data="tickets" style="width: 100%" v-loading="loading">
-        <el-table-column prop="serial_number" label="序列号" width="180" />
-        <el-table-column prop="model_display" label="型号" width="100" />
-        <el-table-column prop="source" label="来源地" width="150" />
-        <el-table-column prop="status_display" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)">
-              {{ row.status_display }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="updated_at" label="更新时间" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.updated_at) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="已过天数" width="100">
-          <template #default="{ row }">
-            <el-tag :type="row.days_elapsed >= 21 ? 'danger' : 'warning'">
-              {{ row.days_elapsed }} 天
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="100">
-          <template #default="{ row }">
-            <el-button type="primary" link @click="router.push(`/tickets/${row.id}`)">
-              查看详情
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div class="table-wrapper">
+        <el-table :data="tickets" style="width: 100%" v-loading="loading">
+          <el-table-column prop="serial_number" label="序列号" width="180" />
+          <el-table-column prop="model_display" label="型号" width="100" />
+          <el-table-column prop="source" label="来源地" width="150" />
+          <el-table-column prop="status_display" label="状态" width="100">
+            <template #default="{ row }">
+              <el-tag :type="getStatusType(row.status)">
+                {{ row.status_display }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="updated_at" label="更新时间" width="120">
+            <template #default="{ row }">
+              {{ formatDate(row.updated_at) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="已过天数" width="100">
+            <template #default="{ row }">
+              <el-tag :type="row.days_elapsed >= 21 ? 'danger' : 'warning'">
+                {{ row.days_elapsed }} 天
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="router.push(`/tickets/${row.id}`)">
+                查看详情
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-card>
   </div>
 </template>
@@ -137,6 +139,10 @@ function formatDate(dateStr) {
 
 .stats-container {
   margin-bottom: 10px;
+}
+
+.stats-container .el-col {
+  margin-bottom: 12px;
 }
 
 .stat-card {
@@ -197,11 +203,41 @@ function formatDate(dateStr) {
   border-radius: 12px;
 }
 
+.table-wrapper {
+  overflow-x: auto;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 16px;
   font-weight: 600;
+}
+
+/* 移动端响应式 */
+@media (max-width: 768px) {
+  .stat-card :deep(.el-card__body) {
+    padding: 16px;
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .stat-icon .el-icon {
+    font-size: 32px !important;
+  }
+
+  .stat-value {
+    font-size: 28px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
 }
 </style>

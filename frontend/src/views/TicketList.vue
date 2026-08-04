@@ -2,84 +2,89 @@
   <div class="ticket-list">
     <!-- 搜索和筛选 -->
     <el-card class="filter-card" shadow="hover">
-      <el-row :gutter="20">
-        <el-col :span="8">
+      <el-row :gutter="16">
+        <el-col :xs="24" :sm="8">
           <el-input
             v-model="searchText"
             placeholder="搜索序列号、来源地、故障描述"
             clearable
             @keyup.enter="handleSearch"
+            style="margin-bottom: 10px"
           >
             <template #prefix>
               <el-icon><Search /></el-icon>
             </template>
           </el-input>
         </el-col>
-        <el-col :span="6">
-          <el-select v-model="statusFilter" placeholder="按状态筛选" clearable>
+        <el-col :xs="24" :sm="6">
+          <el-select v-model="statusFilter" placeholder="按状态筛选" clearable style="margin-bottom: 10px; width: 100%">
             <el-option label="进行中" value="in_progress" />
             <el-option label="已完成" value="completed" />
           </el-select>
         </el-col>
-        <el-col :span="10">
-          <el-button type="primary" @click="handleSearch">
-            <el-icon><Search /></el-icon>
-            搜索
-          </el-button>
-          <el-button @click="handleReset">
-            <el-icon><Refresh /></el-icon>
-            重置
-          </el-button>
-          <el-button type="success" @click="router.push('/tickets/add')">
-            <el-icon><Plus /></el-icon>
-            添加工单
-          </el-button>
+        <el-col :xs="24" :sm="10">
+          <div class="filter-buttons">
+            <el-button type="primary" @click="handleSearch">
+              <el-icon><Search /></el-icon>
+              搜索
+            </el-button>
+            <el-button @click="handleReset">
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
+            <el-button type="success" @click="router.push('/tickets/add')">
+              <el-icon><Plus /></el-icon>
+              添加工单
+            </el-button>
+          </div>
         </el-col>
       </el-row>
     </el-card>
 
     <!-- 工单表格 -->
     <el-card class="table-card" shadow="hover">
-      <el-table :data="tickets" style="width: 100%" v-loading="loading" stripe>
-        <el-table-column prop="serial_number" label="序列号" width="180" sortable />
-        <el-table-column prop="model_display" label="型号" width="100" />
-        <el-table-column prop="source" label="来源地" width="150" />
-        <el-table-column prop="status_display" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)" effect="dark">
-              {{ row.status_display }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="attachment_count" label="附件数" width="80" align="center" />
-        <el-table-column prop="updated_at" label="更新时间" width="120" sortable>
-          <template #default="{ row }">
-            {{ formatDate(row.updated_at) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="已过天数" width="120" sortable>
-          <template #default="{ row }">
-            <el-tag
-              :type="row.days_elapsed >= 21 ? 'danger' : 'warning'"
-              effect="plain"
-            >
-              {{ row.days_elapsed }} 天
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" link @click="router.push(`/tickets/${row.id}`)">
-              <el-icon><View /></el-icon>
-              查看
-            </el-button>
-            <el-button type="danger" link @click="handleDelete(row)">
-              <el-icon><Delete /></el-icon>
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div class="table-wrapper">
+        <el-table :data="tickets" style="width: 100%" v-loading="loading" stripe>
+          <el-table-column prop="serial_number" label="序列号" width="180" sortable />
+          <el-table-column prop="model_display" label="型号" width="100" />
+          <el-table-column prop="source" label="来源地" width="150" />
+          <el-table-column prop="status_display" label="状态" width="100">
+            <template #default="{ row }">
+              <el-tag :type="getStatusType(row.status)" effect="dark">
+                {{ row.status_display }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="attachment_count" label="附件数" width="80" align="center" />
+          <el-table-column prop="updated_at" label="更新时间" width="120" sortable>
+            <template #default="{ row }">
+              {{ formatDate(row.updated_at) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="已过天数" width="120" sortable>
+            <template #default="{ row }">
+              <el-tag
+                :type="row.days_elapsed >= 21 ? 'danger' : 'warning'"
+                effect="plain"
+              >
+                {{ row.days_elapsed }} 天
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="200" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="router.push(`/tickets/${row.id}`)">
+                <el-icon><View /></el-icon>
+                查看
+              </el-button>
+              <el-button type="danger" link @click="handleDelete(row)">
+                <el-icon><Delete /></el-icon>
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
 
       <!-- 分页 -->
       <div class="pagination-container">
@@ -91,6 +96,7 @@
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
           @current-change="handlePageChange"
+          :small="isMobile"
         />
       </div>
     </el-card>
@@ -112,6 +118,11 @@ const searchText = ref('')
 const statusFilter = ref('')
 const currentPage = ref(1)
 const pageSize = ref(20)
+const isMobile = ref(window.innerWidth <= 768)
+
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth <= 768
+})
 
 onMounted(() => {
   loadData()
@@ -207,13 +218,38 @@ function formatDate(dateStr) {
   border-radius: 12px;
 }
 
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .table-card {
   border-radius: 12px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
 }
 
 .pagination-container {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* 移动端响应式 */
+@media (max-width: 768px) {
+  .filter-buttons {
+    margin-bottom: 10px;
+  }
+
+  .filter-buttons .el-button {
+    flex: 1;
+  }
+
+  .pagination-container {
+    justify-content: center;
+  }
 }
 </style>
