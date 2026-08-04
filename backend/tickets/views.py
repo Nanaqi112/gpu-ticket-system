@@ -1,8 +1,14 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
+from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q
 from .models import Ticket, Attachment
+from .permissions import IsAdminOrReadOnly
+from .authentication import CsrfExemptSessionAuthentication
 from .serializers import (
     TicketListSerializer,
     TicketDetailSerializer,
@@ -12,9 +18,62 @@ from .serializers import (
 )
 
 
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@authentication_classes([CsrfExemptSessionAuthentication])
+def login_view(request):
+    """用户登录"""
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    if not username or not password:
+        return Response(
+            {'error': '请输入用户名和密码'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'is_staff': user.is_staff,
+        })
+    else:
+        return Response(
+            {'error': '用户名或密码错误'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CsrfExemptSessionAuthentication])
+def logout_view(request):
+    """用户登出"""
+    logout(request)
+    return Response({'message': '已登出'})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_info(request):
+    """获取当前用户信息"""
+    user = request.user
+    return Response({
+        'id': user.id,
+        'username': user.username,
+        'is_staff': user.is_staff,
+    })
+
+
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketListSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
 
     def get_serializer_class(self):
         if self.action == 'create':

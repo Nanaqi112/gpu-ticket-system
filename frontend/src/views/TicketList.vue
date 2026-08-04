@@ -32,7 +32,7 @@
               <el-icon><Refresh /></el-icon>
               重置
             </el-button>
-            <el-button type="success" @click="router.push('/tickets/add')">
+            <el-button v-if="userStore.isAdmin" type="success" @click="router.push('/tickets/add')">
               <el-icon><Plus /></el-icon>
               添加工单
             </el-button>
@@ -71,13 +71,13 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="200" fixed="right">
+          <el-table-column label="操作" :width="userStore.isAdmin ? 200 : 100" fixed="right">
             <template #default="{ row }">
               <el-button type="primary" link @click="router.push(`/tickets/${row.id}`)">
                 <el-icon><View /></el-icon>
                 查看
               </el-button>
-              <el-button type="danger" link @click="handleDelete(row)">
+              <el-button v-if="userStore.isAdmin" type="danger" link @click="handleDelete(row)">
                 <el-icon><Delete /></el-icon>
                 删除
               </el-button>
@@ -107,11 +107,13 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTicketStore } from '../stores/ticket'
+import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 const router = useRouter()
 const store = useTicketStore()
+const userStore = useUserStore()
 const { tickets, loading, pagination } = storeToRefs(store)
 
 const searchText = ref('')

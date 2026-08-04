@@ -18,10 +18,28 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => response.data,
   error => {
-    console.error('API Error:', error)
+    if (error.response?.status === 401) {
+      // 未登录或登录过期，跳转到登录页
+      window.location.href = '/login'
+    }
     return Promise.reject(error)
   }
 )
+
+// 认证API
+export const authApi = {
+  login(username, password) {
+    return api.post('/auth/login/', { username, password })
+  },
+
+  logout() {
+    return api.post('/auth/logout/')
+  },
+
+  getUserInfo() {
+    return api.get('/auth/user/')
+  }
+}
 
 // 工单API
 export const ticketApi = {

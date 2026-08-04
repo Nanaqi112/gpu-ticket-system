@@ -20,11 +20,27 @@
                 <el-icon><List /></el-icon>
                 <span>工单列表</span>
               </el-menu-item>
-              <el-menu-item index="/tickets/add">
+              <el-menu-item v-if="userStore.isAdmin" index="/tickets/add">
                 <el-icon><Plus /></el-icon>
                 <span>添加工单</span>
               </el-menu-item>
             </el-menu>
+            <div class="user-info" v-if="userStore.isLoggedIn">
+              <el-dropdown @command="handleCommand">
+                <span class="user-dropdown">
+                  <el-icon><User /></el-icon>
+                  <span>{{ userStore.user?.username }}</span>
+                  <el-tag v-if="userStore.isAdmin" size="small" type="danger">管理员</el-tag>
+                  <el-tag v-else size="small" type="info">普通用户</el-tag>
+                  <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
           </div>
         </el-header>
         <el-main class="app-main">
@@ -37,10 +53,21 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from './stores/user'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import { ElMessage } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
+
+async function handleCommand(command) {
+  if (command === 'logout') {
+    await userStore.logout()
+    ElMessage.success('已退出登录')
+    router.push('/login')
+  }
+}
 </script>
 
 <style>
@@ -99,6 +126,23 @@ body {
   color: white;
 }
 
+.user-info {
+  margin-left: auto;
+  color: white;
+}
+
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.user-dropdown .el-tag {
+  margin-left: 4px;
+}
+
 .app-main {
   max-width: 1400px;
   margin: 0 auto;
@@ -120,8 +164,18 @@ body {
   .header-content h1 {
     font-size: 16px;
     margin-right: 0;
-    margin-bottom: 10px;
     text-align: center;
+  }
+
+  .user-info {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .user-dropdown {
+    justify-content: center;
   }
 
   .header-menu {

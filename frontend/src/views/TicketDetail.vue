@@ -19,7 +19,7 @@
               <el-tag :type="getStatusType(ticket.status)" size="large" effect="dark" style="margin-right: 12px;">
                 {{ ticket.status_display }}
               </el-tag>
-              <el-button type="primary" @click="showEditDialog">
+              <el-button v-if="userStore.isAdmin" type="primary" @click="showEditDialog">
                 <el-icon><Edit /></el-icon>
                 编辑工单
               </el-button>
@@ -54,8 +54,8 @@
         </el-descriptions>
       </el-card>
 
-      <!-- 状态更新 -->
-      <el-card class="status-card" shadow="hover">
+      <!-- 状态更新 (仅管理员可见) -->
+      <el-card v-if="userStore.isAdmin" class="status-card" shadow="hover">
         <template #header>
           <span>更新状态</span>
         </template>
@@ -71,6 +71,7 @@
           <div class="card-header">
             <span>附件 ({{ ticket.attachments?.length || 0 }})</span>
             <el-upload
+              v-if="userStore.isAdmin"
               :show-file-list="false"
               :before-upload="handleUpload"
               multiple
@@ -96,7 +97,7 @@
               />
               <div class="image-info">
                 <span class="file-name">{{ img.file_name }}</span>
-                <el-button type="danger" link @click="handleDeleteAttachment(img.id)">
+                <el-button v-if="userStore.isAdmin" type="danger" link @click="handleDeleteAttachment(img.id)">
                   <el-icon><Delete /></el-icon>
                 </el-button>
               </div>
@@ -124,12 +125,12 @@
                 {{ formatDate(row.uploaded_at) }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="120">
+            <el-table-column label="操作" :width="userStore.isAdmin ? 120 : 80">
               <template #default="{ row }">
                 <el-button type="primary" link :href="row.url" target="_blank">
                   下载
                 </el-button>
-                <el-button type="danger" link @click="handleDeleteAttachment(row.id)">
+                <el-button v-if="userStore.isAdmin" type="danger" link @click="handleDeleteAttachment(row.id)">
                   删除
                 </el-button>
               </template>
@@ -192,12 +193,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTicketStore } from '../stores/ticket'
+import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
 const store = useTicketStore()
+const userStore = useUserStore()
 const { currentTicket: ticket, loading } = storeToRefs(store)
 
 const currentStatus = ref('')
