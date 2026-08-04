@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x *)",
+      "Bash(./gpu-tickets.sh start *)",
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(curl -s http://localhost:8000/api/tickets/stats/)",
+      "Bash(curl -s http://localhost/)",
+      "Bash(curl *)",
+      "Bash(./gpu-tickets.sh status *)"
+    ]
+  }
+}

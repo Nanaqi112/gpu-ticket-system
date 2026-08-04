@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gpu-tickets-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - media_data:/app/media
+      - ./backend/.env:/app/.env
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gpu-tickets-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # 数据库
+  db:
+    image: postgres:15-alpine
+    container_name: gpu-tickets-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gpu_tickets
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  # Redis (可选，用于缓存)
+  redis:
+    image: redis:7-alpine
+    container_name: gpu-tickets-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_data:
+
+networks:
+  app-network:
+    driver: bridge
