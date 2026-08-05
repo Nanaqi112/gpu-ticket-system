@@ -23,8 +23,8 @@ class Ticket(models.Model):
     source = models.CharField(max_length=200, verbose_name='来源地')
     fault_description = models.TextField(verbose_name='故障描述')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress', db_index=True, verbose_name='状态')
-    created_at = models.DateTimeField(db_index=True, verbose_name='创建时间')
-    updated_at = models.DateTimeField(verbose_name='更新时间')
+    created_at = models.DateField(db_index=True, verbose_name='创建时间')
+    updated_at = models.DateField(verbose_name='更新时间')
 
     class Meta:
         verbose_name = '工单'
@@ -37,7 +37,7 @@ class Ticket(models.Model):
     @property
     def days_elapsed(self):
         """计算从更新时间到现在经过的天数"""
-        delta = timezone.now() - self.updated_at
+        delta = timezone.now().date() - self.updated_at
         return delta.days
 
 

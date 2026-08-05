@@ -73,6 +73,7 @@ def user_info(request):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketListSerializer
+    authentication_classes = [CsrfExemptSessionAuthentication]
     permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
 
     def get_serializer_class(self):
