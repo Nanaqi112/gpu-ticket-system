@@ -23,6 +23,9 @@
                 <el-option label="H100" value="H100" />
                 <el-option label="H200" value="H200" />
                 <el-option label="B200" value="B200" />
+                <el-option label="H100底板" value="H100_BD" />
+                <el-option label="H200底板" value="H200_BD" />
+                <el-option label="B200底板" value="B200_BD" />
                 <el-option label="A100" value="A100" />
                 <el-option label="A800" value="A800" />
                 <el-option label="L40S" value="L40S" />

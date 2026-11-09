@@ -155,7 +155,7 @@ gpu-ticket-system/
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| model_type | CharField | 型号 (H100/H200/B200/A100/A800/L40S/OTHER) |
+| model_type | CharField | 型号 (H100/H200/B200/H100底板/H200底板/B200底板/A100/A800/L40S/OTHER) |
 | serial_number | CharField | 序列号（唯一） |
 | source | CharField | 来源地 |
 | fault_description | TextField | 故障描述 |
