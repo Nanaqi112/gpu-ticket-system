@@ -1,11 +1,18 @@
+import io
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponse
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.utils import get_column_letter
 from .models import Ticket, Attachment
 from .permissions import IsAdminOrReadOnly
 from .authentication import CsrfExemptSessionAuthentication
@@ -113,6 +120,55 @@ class TicketViewSet(viewsets.ModelViewSet):
             'completed': completed,
             'in_progress': in_progress,
         })
+
+    @action(detail=False, methods=['get'])
+    def export(self, request):
+        """导出全部工单数据为 Excel"""
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = '工单数据'
+
+        headers = ['序列号', '型号', '来源地', '故障描述', '状态', '创建时间', '更新时间', '已过天数', '附件数']
+        sheet.append(headers)
+
+        header_fill = PatternFill('solid', fgColor='4472C4')
+        for cell in sheet[1]:
+            cell.font = Font(bold=True, color='FFFFFF')
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        tickets = Ticket.objects.annotate(attachment_count=Count('attachments'))
+        for ticket in tickets:
+            sheet.append([
+                ticket.serial_number,
+                ticket.get_model_type_display(),
+                ticket.source,
+                ticket.fault_description,
+                ticket.get_status_display(),
+                ticket.created_at.strftime('%Y-%m-%d'),
+                ticket.updated_at.strftime('%Y-%m-%d'),
+                ticket.days_elapsed,
+                ticket.attachment_count,
+            ])
+
+        for row in sheet.iter_rows(min_row=2):
+            row[3].alignment = Alignment(wrap_text=True, vertical='top')
+
+        column_widths = [22, 12, 20, 50, 12, 14, 14, 10, 10]
+        for index, width in enumerate(column_widths, start=1):
+            sheet.column_dimensions[get_column_letter(index)].width = width
+        sheet.freeze_panes = 'A2'
+
+        buffer = io.BytesIO()
+        workbook.save(buffer)
+
+        filename = f"tickets_{timezone.localtime().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        response = HttpResponse(
+            buffer.getvalue(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        )
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
 
     @action(detail=True, methods=['delete'])
     def delete_attachment(self, request, pk=None):

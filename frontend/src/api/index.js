@@ -97,6 +97,11 @@ export const ticketApi = {
     return api.get('/tickets/stats/')
   },
 
+  // 导出全部工单为 Excel
+  exportTickets() {
+    return api.get('/tickets/export/', { responseType: 'blob' })
+  },
+
   // 删除附件
   deleteAttachment(ticketId, attachmentId) {
     return api.delete(`/tickets/${ticketId}/delete_attachment/`, {

@@ -117,6 +117,7 @@ DB_PASSWORD=数据库密码
 | PATCH | `/api/tickets/{id}/` | 更新工单 |
 | DELETE | `/api/tickets/{id}/` | 删除工单 |
 | GET | `/api/tickets/stats/` | 获取统计数据 |
+| GET | `/api/tickets/export/` | 导出全部工单为 Excel |
 
 **查询参数：**
 - `page` - 页码

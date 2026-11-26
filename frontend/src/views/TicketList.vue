@@ -32,6 +32,10 @@
               <el-icon><Refresh /></el-icon>
               重置
             </el-button>
+            <el-button type="success" plain :loading="exporting" @click="handleExport">
+              <el-icon><Download /></el-icon>
+              导出 Excel
+            </el-button>
             <el-button v-if="userStore.isAdmin" type="success" @click="router.push('/tickets/add')">
               <el-icon><Plus /></el-icon>
               添加工单
@@ -110,6 +114,7 @@ import { useTicketStore } from '../stores/ticket'
 import { useUserStore } from '../stores/user'
 import { storeToRefs } from 'pinia'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { ticketApi } from '../api'
 
 const router = useRouter()
 const store = useTicketStore()
@@ -121,6 +126,7 @@ const statusFilter = ref('')
 const currentPage = ref(1)
 const pageSize = ref(20)
 const isMobile = ref(window.innerWidth <= 768)
+const exporting = ref(false)
 
 window.addEventListener('resize', () => {
   isMobile.value = window.innerWidth <= 768
@@ -186,6 +192,29 @@ async function handleDelete(row) {
     loadData()
   } catch {
     // 用户取消
+  }
+}
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    const blob = await ticketApi.exportTickets()
+    const url = URL.createObjectURL(blob)
+    const now = new Date()
+    const pad = n => String(n).padStart(2, '0')
+    const ts = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `工单数据_${ts}.xlsx`
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    ElMessage.success('导出成功')
+  } catch (error) {
+    console.error('导出工单失败:', error)
+    ElMessage.error('导出失败，请稍后重试')
+  } finally {
+    exporting.value = false
   }
 }
 
