@@ -101,6 +101,8 @@ DB_PASSWORD=数据库密码
 
 ## API接口
 
+完整的认证方式、参数说明、响应结构、错误码与权限矩阵见 **[docs/API.md](docs/API.md)**。
+
 ### 认证接口
 
 | 方法 | 路径 | 说明 |
@@ -123,7 +125,7 @@ DB_PASSWORD=数据库密码
 
 **查询参数：**
 - `page` - 页码
-- `page_size` - 每页数量
+- `page_size` - 声明支持但当前未生效（列表固定 20 条/页，详见 API 文档）
 - `status` - 状态筛选 (`in_progress`, `completed`)
 - `search` - 搜索关键词
 
@@ -151,6 +153,7 @@ gpu-ticket-system/
 │   ├── nginx.conf              # nginx（前端静态 + API反代 + 媒体文件）
 │   ├── supervisord.conf        # 进程管理（nginx + gunicorn）
 │   └── entrypoint.sh           # 等待数据库、迁移、启动
+├── docs/API.md                 # API 详细文档
 ├── Dockerfile                  # 应用镜像（前端构建 + nginx + gunicorn）
 ├── .dockerignore
 ├── docker-compose.yml          # Docker编排（app + db 两个容器）
