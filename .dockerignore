@@ -1,0 +1,28 @@
+.git
+.gitignore
+.github
+
+# 文档与备份
+*.md
+backups/
+*.xlsx
+*.sql
+*.sql.gz
+*.dump
+
+# 环境变量与密钥（禁止打进镜像）
+backend/.env
+backend/.env.*
+
+# 本地数据与构建产物
+backend/media
+backend/staticfiles
+backend/db.sqlite3
+**/__pycache__
+**/*.pyc
+frontend/node_modules
+frontend/dist
+
+# IDE
+.vscode
+.idea

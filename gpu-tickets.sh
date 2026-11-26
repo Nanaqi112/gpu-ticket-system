@@ -73,11 +73,11 @@ start() {
 
     # 初始化数据库
     echo -e "${YELLOW}[5/6] 初始化数据库...${NC}"
-    docker compose exec -T backend python manage.py migrate --run-syncdb 2>/dev/null || true
+    docker compose exec -T app python manage.py migrate --run-syncdb 2>/dev/null || true
 
     # 创建管理员账号
     echo -e "${YELLOW}[6/6] 创建管理员账号...${NC}"
-    docker compose exec -T backend python manage.py init_admin
+    docker compose exec -T app python manage.py init_admin
 
     echo ""
     echo -e "${GREEN}========================================${NC}"
@@ -86,8 +86,8 @@ start() {
     echo ""
     echo -e "访问地址:"
     echo -e "  前端页面:     ${GREEN}http://localhost${NC}"
-    echo -e "  后端API:      ${GREEN}http://localhost:8000/api/${NC}"
-    echo -e "  管理后台:     ${GREEN}http://localhost:8000/admin/${NC}"
+    echo -e "  后端API:      ${GREEN}http://localhost/api/${NC}"
+    echo -e "  管理后台:     ${GREEN}http://localhost/admin/${NC}"
     echo ""
     echo -e "管理后台账号: ${GREEN}admin${NC}"
     echo -e "管理后台密码: ${GREEN}admin2026${NC}"
@@ -142,7 +142,7 @@ init_admin() {
     echo -e "${GREEN}========================================${NC}"
     echo ""
 
-    docker compose exec backend python manage.py init_admin
+    docker compose exec app python manage.py init_admin
 
     echo ""
     echo -e "管理员账号: ${GREEN}admin${NC}"

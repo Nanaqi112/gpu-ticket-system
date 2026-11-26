@@ -1,39 +1,30 @@
-version: '3.8'
-
 services:
-  # 后端服务
-  backend:
+  # 应用服务：nginx（前端静态 + 反代） + Django(gunicorn)
+  app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: gpu-tickets-backend
+    container_name: gpu-tickets-app
     restart: unless-stopped
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
-      - media_data:/app/media
-      - ./backend/.env:/app/.env
-    depends_on:
-      - db
-    networks:
-      - app-network
-
-  # 前端服务
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: gpu-tickets-frontend
-    restart: unless-stopped
+    env_file:
+      - ./backend/.env
     ports:
       - "80:80"
+    volumes:
+      - media_data:/app/media
     depends_on:
-      - backend
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
     networks:
       - app-network
 
-  # 数据库
+  # 数据库：Docker Hub 官方镜像
   db:
     image: postgres:15-alpine
     container_name: gpu-tickets-db
@@ -46,18 +37,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks:
-      - app-network
-
-  # Redis (可选，用于缓存)
-  redis:
-    image: redis:7-alpine
-    container_name: gpu-tickets-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gpu_tickets"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
 
@@ -65,7 +49,6 @@ volumes:
   postgres_data:
     external: true
     name: gongdanxitong_postgres_data
-  redis_data:
   media_data:
     external: true
     name: gongdanxitong_media_data

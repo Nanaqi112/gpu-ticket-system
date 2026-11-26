@@ -34,7 +34,7 @@ GPU维修工单管理系统，用于追踪和管理GPU配件的维修流程。
 | 前端 | Vue 3 + Element Plus + Pinia + Axios |
 | 后端 | Django + Django REST Framework |
 | 数据库 | PostgreSQL |
-| 缓存 | Redis (可选) |
+| 缓存 | 可选 Redis（默认不启用，使用数据库会话） |
 | 部署 | Docker + Docker Compose |
 
 ## 快速开始
@@ -71,13 +71,15 @@ DB_PASSWORD=数据库密码
 - 初始化数据库
 - 创建管理员账号
 
+启动后共两个容器：`gpu-tickets-app`（nginx + Django/gunicorn）与 `gpu-tickets-db`（官方 PostgreSQL 15），访问入口统一为 80 端口。
+
 ### 4. 访问系统
 
 | 服务 | 地址 |
 |------|------|
 | 前端页面 | http://localhost |
-| 后端API | http://localhost:8000/api/ |
-| 管理后台 | http://localhost:8000/admin/ |
+| 后端API | http://localhost/api/ |
+| 管理后台 | http://localhost/admin/ |
 
 **默认账号：**
 
@@ -129,23 +131,29 @@ DB_PASSWORD=数据库密码
 
 ```
 gpu-ticket-system/
-├── backend/                    # Django后端
+├── backend/                    # Django后端源码
 │   ├── config/                 # 项目配置
 │   ├── tickets/                # 工单应用
 │   ├── manage.py
 │   ├── requirements.txt
 │   ├── .env.example            # 环境变量模板
-│   └── Dockerfile
-├── frontend/                   # Vue 3前端
+│   └── Dockerfile              # 仅单独构建后端时使用
+├── frontend/                   # Vue 3前端源码
 │   ├── src/
 │   │   ├── api/                # API服务
 │   │   ├── router/             # 路由配置
 │   │   ├── stores/             # 状态管理 (含user.js)
 │   │   └── views/              # 页面组件 (含Login.vue)
 │   ├── package.json
-│   ├── nginx.conf
+│   ├── nginx.conf              # 仅单独部署前端时使用
 │   └── Dockerfile
-├── docker-compose.yml          # Docker编排
+├── deploy/                     # 合并应用镜像的部署配置
+│   ├── nginx.conf              # nginx（前端静态 + API反代 + 媒体文件）
+│   ├── supervisord.conf        # 进程管理（nginx + gunicorn）
+│   └── entrypoint.sh           # 等待数据库、迁移、启动
+├── Dockerfile                  # 应用镜像（前端构建 + nginx + gunicorn）
+├── .dockerignore
+├── docker-compose.yml          # Docker编排（app + db 两个容器）
 ├── gpu-tickets.sh              # 管理脚本
 └── README.md
 ```
